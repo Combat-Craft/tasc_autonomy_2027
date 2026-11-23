@@ -1,4 +1,3 @@
-
 /*
  * ROS 2 Panorama Capture Node
  *
