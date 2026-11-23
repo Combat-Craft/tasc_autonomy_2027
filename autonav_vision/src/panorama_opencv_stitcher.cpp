@@ -1,17 +1,3 @@
-/*
-Standalone OpenCV Panorama Stitcher
-
-Loads previously captured frame_*.jpg images from a
-panorama sweep folder, stitches them together, and
-saves the result as panorama.jpg.
-
-If metadata.csv is available, GPS coordinates and
-camera heading/cardinal labels can be drawn on the
-resulting panorama.
-
-This application does not require ROS 2.
-*/
-
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/stitching.hpp>
@@ -467,29 +453,22 @@ bool stitch_images(const std::string & folder_path)
     return true;
 }
 
-// -------------------------------------------------
-// Main entry point
-// -------------------------------------------------
-
 int main(int argc, char * argv[])
 {
     std::string folder_path;
 
     // Allow folder path as command-line argument
-    if (argc == 2)
-    {
+    if (argc == 2) {
         folder_path = argv[1];
     }
-    else if (argc == 1)
-    {
+    else if (argc == 1) {
         std::cout
             << "Enter folder path containing "
             << "frame_*.jpg images: ";
 
         std::getline(std::cin, folder_path);
     }
-    else
-    {
+    else {
         std::cerr
             << "Usage: " << argv[0]
             << " [sweep_folder]\n";
@@ -497,23 +476,19 @@ int main(int argc, char * argv[])
         return 1;
     }
 
-    if (folder_path.empty())
-    {
+    if (folder_path.empty()) {
         std::cerr << "No folder path entered.\n";
         return 1;
     }
 
-    try
-    {
+    try {
         return stitch_images(folder_path) ? 0 : 1;
     }
-    catch (const cv::Exception & e)
-    {
+    catch (const cv::Exception & e) {
         std::cerr
             << "OpenCV error: " << e.what() << "\n";
     }
-    catch (const std::exception & e)
-    {
+    catch (const std::exception & e) {
         std::cerr
             << "Error: " << e.what() << "\n";
     }

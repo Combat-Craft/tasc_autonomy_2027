@@ -247,12 +247,11 @@ int main(int argc, char * argv[])
     rclcpp::init(argc, argv);
 
     try {
-        // Create the MotorController node.
+        // Create the MotorController node
         auto node = std::make_shared<autonav_vision::MotorController>();
         rclcpp::spin(node);
     }
     catch (const std::exception & e) {
-        // Report initialization or runtime errors and shut down ROS 2.
         RCLCPP_FATAL(rclcpp::get_logger("motor_controller"), "Motor controller failed: %s", e.what());
         rclcpp::shutdown();
         return 1;
