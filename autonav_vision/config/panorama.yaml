@@ -1,0 +1,13 @@
+panorama_capture:
+  ros__parameters:
+    test_mode: true
+
+    save_dir: "~/panorama_images"
+
+    start_angle: -120.0
+    end_angle: 120.0
+    num_angles: 12
+
+    move_time: 1.0
+    settle_time: 1.0
+    capture_timeout: 3.0
