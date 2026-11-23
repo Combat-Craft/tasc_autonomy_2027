@@ -293,3 +293,45 @@ ros2 param get /panorama_capture num_angles
 - Complete and test IP camera snapshot functionality.
 - Add GPS latitude, longitude, rover heading, camera heading, and cardinal direction metadata.
 - Verify end-to-end image capture and panorama stitching.
+
+## 7. CH340/CH341 Driver (Jetson) [Completely ignore this section if the serial port shows up as specified in section 4]
+
+The Arduino Nano uses a CH340/CH341 USB-to-serial converter.
+
+First, try loading the built-in Linux driver:
+
+```bash
+sudo modprobe ch341
+```
+
+Check whether the Arduino serial device is available:
+
+```bash
+ls -l /dev/ttyUSB*
+```
+
+If the built-in driver is unavailable or does not work, the
+following CH341SER driver was used during the original Jetson setup:
+
+```bash
+git clone https://github.com/juliagoda/CH341SER.git
+cd CH341SER
+make
+sudo make load
+```
+
+### Serial Permissions
+
+Check whether your user belongs to the `dialout` group:
+
+```bash
+groups
+```
+
+If `dialout` is missing:
+
+```bash
+sudo usermod -aG dialout "$USER"
+```
+
+Log out and log back in to apply the group change.
