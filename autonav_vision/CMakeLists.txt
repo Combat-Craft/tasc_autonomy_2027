@@ -7,7 +7,10 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GST REQUIRED IMPORTED_TARGET gstreamer-app-1.0)
 
 add_executable(hello_word_example src/hello_word_example.cpp)
 target_include_directories(
@@ -17,9 +20,17 @@ target_include_directories(
 )
 target_compile_features(hello_word_example PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
+foreach(camera_node IN ITEMS usb_camera webcam_test)
+  add_executable(${camera_node} src/${camera_node}.cpp)
+  target_compile_features(${camera_node} PRIVATE cxx_std_17)
+  ament_target_dependencies(${camera_node} rclcpp sensor_msgs)
+  target_link_libraries(${camera_node} PkgConfig::GST)
+endforeach()
+
 install(TARGETS 
 	hello_word_example
-	# add nodes names here
+	usb_camera
+  webcam_test
   DESTINATION lib/${PROJECT_NAME}
 )
 
