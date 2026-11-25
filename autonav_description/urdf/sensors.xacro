@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Keep each sensor body as a separate Gazebo link to preserve its mount pose. -->
+  <xacro:macro name="sensor_mount" params="name parent xyz rpy">
+    <xacro:fixed_joint name="${name}_mount_joint" parent="${parent}" child="${name}"
+                       xyz="${xyz}" rpy="${rpy}"/>
+    <xacro:if value="${simulate}">
+      <gazebo reference="${name}_mount_joint"><preserveFixedJoint>true</preserveFixedJoint></gazebo>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="camera" params="name parent xyz rpy depth:=false">
+    <xacro:property name="optical" value="${name}_optical_frame"/>
+    <xacro:property name="body" value="${name}_link"/>
+    <xacro:property name="width" value="${0.090 if depth else 0.060}"/>
+    <link name="${body}">
+      <xacro:box_inertia mass="${0.098 if depth else 0.11}" x="0.025" y="${width}" z="0.030"
+                         xyz="-0.0125 0 0"/>
+      <xacro:box_visual size="0.025 ${width} 0.030" material="sensor" xyz="-0.0125 0 0"/>
+      <xacro:box_collision size="0.025 ${width} 0.030" xyz="-0.0125 0 0"/>
+    </link>
+    <xacro:sensor_mount name="${body}" parent="${parent}" xyz="${xyz}" rpy="${rpy}"/>
+    <link name="${optical}"/>
+    <!-- REP-103 optical frames use +Z forward, +X right and +Y down. -->
+    <xacro:fixed_joint name="${name}_optical_joint" parent="${body}" child="${optical}"
+                       rpy="${-pi/2} 0 ${-pi/2}"/>
+    <xacro:if value="${simulate}">
+      <gazebo reference="${body}">
+        <sensor name="${optical}" type="${'rgbd_camera' if depth else 'camera'}">
+          <always_on>true</always_on><update_rate>${15 if depth else 20}</update_rate>
+          <topic>/${name}${'' if depth else '/image_raw'}</topic>
+          <gz_frame_id>${optical}</gz_frame_id>
+          <camera>
+            <horizontal_fov>${radians(91 if depth else 75)}</horizontal_fov>
+            <image><width>640</width><height>${400 if depth else 480}</height><format>R8G8B8</format></image>
+            <clip><near>${0.15 if depth else 0.08}</near><far>${10 if depth else 20}</far></clip>
+            <xacro:unless value="${depth}"><camera_info_topic>/${name}/camera_info</camera_info_topic></xacro:unless>
+          </camera>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="rplidar_a1m8" params="parent xyz rpy">
+    <!-- Frame is at the scan plane, above the visual housing. -->
+    <link name="laser_frame">
+      <xacro:box_inertia mass="0.17" x="0.097" y="0.070" z="0.055" xyz="0 0 -0.0275"/>
+      <visual>
+        <origin xyz="0 0 -0.028" rpy="0 0 0"/>
+        <geometry><cylinder radius="0.0484" length="0.055"/></geometry>
+        <material name="sensor"/>
+      </visual>
+      <xacro:box_collision size="0.0968 0.0703 0.055" xyz="0 0 -0.029"/>
+    </link>
+    <xacro:sensor_mount name="laser_frame" parent="${parent}" xyz="${xyz}" rpy="${rpy}"/>
+    <xacro:if value="${simulate}">
+      <gazebo reference="laser_frame">
+        <sensor name="laser_frame" type="gpu_lidar">
+          <always_on>true</always_on><update_rate>5.5</update_rate>
+          <topic>/scan</topic><gz_frame_id>laser_frame</gz_frame_id>
+          <lidar>
+            <scan><horizontal>
+              <samples>360</samples><resolution>1</resolution>
+              <min_angle>${-pi}</min_angle><max_angle>${pi - 2*pi/360}</max_angle>
+            </horizontal></scan>
+            <range><min>0.15</min><max>12.0</max><resolution>0.01</resolution></range>
+            <noise><type>gaussian</type><mean>0</mean><stddev>0.01</stddev></noise>
+          </lidar>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="imu" params="parent xyz rpy">
+    <!-- Current team IMU driver uses gps_imu_link as its frame. -->
+    <link name="gps_imu_link">
+      <xacro:box_inertia mass="0.03" x="0.040" y="0.030" z="0.015"/>
+      <xacro:box_visual size="0.040 0.030 0.015" material="sensor"/>
+    </link>
+    <xacro:sensor_mount name="gps_imu_link" parent="${parent}" xyz="${xyz}" rpy="${rpy}"/>
+    <xacro:if value="${simulate}">
+      <gazebo reference="gps_imu_link">
+        <sensor name="gps_imu_link" type="imu">
+          <always_on>true</always_on><update_rate>100</update_rate>
+          <topic>/imu/acc_gyro</topic><gz_frame_id>gps_imu_link</gz_frame_id>
+          <imu/>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="gps" params="parent xyz rpy">
+    <link name="gps_link">
+      <xacro:box_inertia mass="0.06" x="0.045" y="0.045" z="0.015"/>
+      <xacro:box_visual size="0.045 0.045 0.015" material="sensor"/>
+      <xacro:box_collision size="0.045 0.045 0.015"/>
+    </link>
+    <xacro:sensor_mount name="gps_link" parent="${parent}" xyz="${xyz}" rpy="${rpy}"/>
+    <xacro:if value="${simulate}">
+      <gazebo reference="gps_link">
+        <sensor name="gps_link" type="navsat">
+          <always_on>true</always_on><update_rate>5</update_rate>
+          <topic>/gps/fix</topic><gz_frame_id>gps_link</gz_frame_id>
+          <navsat/>
+        </sensor>
+      </gazebo>
+    </xacro:if>
+  </xacro:macro>
+</robot>

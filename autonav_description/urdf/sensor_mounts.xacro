@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Change parent, xyz (m) and rpy (rad) here when a bracket moves.
+       Sensor offsets are provisional. Verify against the physical rover. -->
+  <xacro:macro name="mount_sensors">
+    <!-- Generic visuals for the forward webcam, rear webcam and roof IP camera. -->
+    <xacro:camera name="front_camera" parent="base_link" xyz="${body_length/2+0.008} 0.108 0.150" rpy="0 0.08 0"/>
+    <xacro:camera name="rear_camera" parent="base_link" xyz="-0.434 0 0.156" rpy="0 0.08 ${pi}"/>
+    <xacro:camera name="top_camera" parent="base_link" xyz="0.006 -0.130 ${body_height+0.055}" rpy="0 0.18 0"/>
+    <xacro:camera name="orbbec" parent="base_link" xyz="${body_length/2+0.010} 0 0.180" rpy="0 0.10 0" depth="true"/>
+    <xacro:rplidar_a1m8 parent="base_link" xyz="0.110 0 ${body_height+0.085}" rpy="0 0 0"/>
+    <xacro:imu parent="base_link" xyz="0 0 0.085" rpy="0 0 0"/>
+    <xacro:gps parent="base_link" xyz="-0.250 0.110 ${body_height+0.010}" rpy="0 0 0"/>
+  </xacro:macro>
+</robot>

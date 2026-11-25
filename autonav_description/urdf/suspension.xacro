@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="passive_pivot" params="name child xyz axis travel">
+    <!-- Passive shaft with estimated stops and light damping for contact stability. -->
+    <joint name="${name}" type="revolute">
+      <parent link="base_link"/><child link="${child}"/>
+      <origin xyz="${xyz}" rpy="0 0 0"/><axis xyz="${axis}"/>
+      <limit lower="${-travel}" upper="${travel}" effort="100" velocity="5"/>
+      <dynamics damping="0.15" friction="0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="wheel" params="name parent xyz">
+    <xacro:property name="radial_inertia"
+                    value="${wheel_mass*(3*wheel_radius**2+wheel_width**2)/12}"/>
+    <link name="${name}_wheel_link">
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia ixx="${radial_inertia}" ixy="0" ixz="0"
+                 iyy="${wheel_mass*wheel_radius**2/2}" iyz="0" izz="${radial_inertia}"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="$(arg mesh_root)/wheel_tread.stl"
+                scale="${wheel_radius/0.11557} ${wheel_width/0.11430} ${wheel_radius/0.11557}"/>
+        </geometry>
+        <material name="rubber"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius*0.67}" length="${wheel_width*1.02}"/></geometry>
+        <material name="metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+    </link>
+    <!-- Both sides use +Y so positive wheel speed rolls both sides forward. -->
+    <joint name="${name}_wheel_joint" type="continuous">
+      <parent link="${parent}"/><child link="${name}_wheel_link"/>
+      <origin xyz="${xyz}" rpy="0 0 0"/><axis xyz="0 1 0"/>
+      <dynamics damping="0.02" friction="0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Each front assembly carries a front and middle wheel on one pitch shaft. -->
+  <xacro:macro name="front_rocker" params="side sign">
+    <xacro:property name="link" value="${side}_front_rocker_link"/>
+    <xacro:property name="wheel_y" value="${sign*(front_track/2-front_pivot_y)}"/>
+    <xacro:property name="front_x" value="${front_axle_x-front_pivot_x}"/>
+    <xacro:property name="mid_x" value="${middle_axle_x-front_pivot_x}"/>
+    <xacro:property name="axle_z" value="${front_axle_z-pivot_z}"/>
+    <link name="${link}">
+      <xacro:box_inertia mass="3.0" x="${front_axle_x-middle_axle_x}" y="0.1" z="0.28"
+                         xyz="0.13 0 -0.09"/>
+      <xacro:tube start="${[mid_x,0,axle_z+0.042]}" end="${[0,0,0]}"/>
+      <xacro:tube start="${[0,0,0]}" end="${[0.274,0,0]}"/>
+      <xacro:tube start="${[0.274,0,0]}" end="${[front_x,0,axle_z+0.042]}"/>
+    </link>
+    <xacro:passive_pivot name="${side}_front_rocker_joint" child="${link}"
+                         xyz="${front_pivot_x} ${sign*front_pivot_y} ${pivot_z}"
+                         axis="0 1 0" travel="${front_travel}"/>
+    <xacro:wheel name="${side}_front" parent="${link}" xyz="${front_x} ${wheel_y} ${axle_z}"/>
+    <xacro:wheel name="${side}_middle" parent="${link}" xyz="${mid_x} ${wheel_y} ${axle_z}"/>
+  </xacro:macro>
+
+  <xacro:macro name="rear_bogie">
+    <xacro:property name="y" value="${rear_track/2}"/>
+    <xacro:property name="x" value="${rear_axle_x-rear_pivot_x}"/>
+    <xacro:property name="z" value="${rear_axle_z-pivot_z}"/>
+    <xacro:property name="leg_y" value="0.2665"/>
+    <link name="rear_bogie_link">
+      <xacro:box_inertia mass="4.0" x="0.23" y="${2*leg_y}" z="0.31" xyz="-0.13 0 -0.12"/>
+      <xacro:tube start="${[0,0,0]}" end="${[-0.11,0,0]}"/>
+      <xacro:tube start="${[-0.11,-leg_y,0]}" end="${[-0.11,leg_y,0]}"/>
+      <xacro:tube start="${[-0.11,leg_y,0]}" end="${[-0.11,leg_y,z+0.05]}"/>
+      <xacro:tube start="${[-0.11,-leg_y,0]}" end="${[-0.11,-leg_y,z+0.05]}"/>
+      <xacro:tube start="${[-0.11,leg_y,z+0.05]}" end="${[x,leg_y,z+0.05]}"/>
+      <xacro:tube start="${[-0.11,-leg_y,z+0.05]}" end="${[x,-leg_y,z+0.05]}"/>
+    </link>
+    <!-- The shared rear axle assembly rolls around its longitudinal shaft. -->
+    <xacro:passive_pivot name="rear_bogie_joint" child="rear_bogie_link"
+                         xyz="${rear_pivot_x} 0 ${pivot_z}" axis="1 0 0" travel="${rear_travel}"/>
+    <xacro:wheel name="left_rear" parent="rear_bogie_link" xyz="${x} ${y} ${z}"/>
+    <xacro:wheel name="right_rear" parent="rear_bogie_link" xyz="${x} ${-y} ${z}"/>
+  </xacro:macro>
+</robot>

@@ -49,9 +49,9 @@ git status
 Go to workspace root i.e. ```cd ~/<your_folder_name>```
 **ONLY BUILD IN YOUR ROOT WORKSPACE FOLDER** It ensures the build, install, and log folders and respective files are all within ~/<your_folder_name> and NOT in src or any other folder!
 
-1) Set up humble ROS2
+1) Source ROS 2 Jazzy
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 ```
 2) Get all dependencies installed, such as rplidar.

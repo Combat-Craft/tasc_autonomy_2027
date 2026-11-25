@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Metres and kilograms. base_link is centred on the bottom chassis plane.
+       Subtract (1.69184, 0.73476, 1.00935) m from the CAD assembly coordinates.
+       +X forward, +Y left, +Z up. Geometry and shafts in THIS_MAIN.SLDASM
+       establish the dimensions. Mass, damping and travel stops are estimates. -->
+  <xacro:property name="body_length" value="0.856"/>
+  <xacro:property name="body_width" value="0.446"/>
+  <xacro:property name="body_height" value="0.180"/>
+  <xacro:property name="body_mass" value="28.0"/>
+  <xacro:property name="front_pivot_x" value="0.18590"/>
+  <xacro:property name="front_pivot_y" value="0.26665"/>
+  <xacro:property name="rear_pivot_x" value="-0.34210"/>
+  <xacro:property name="pivot_z" value="0.04140"/>
+  <xacro:property name="front_axle_x" value="0.76553"/>
+  <xacro:property name="middle_axle_x" value="-0.07988"/>
+  <xacro:property name="rear_axle_x" value="-0.57352"/>
+  <xacro:property name="front_axle_z" value="-0.24872"/>
+  <!-- Rear assembly is de-rolled from its saved CAD pose by about 2.86 degrees. -->
+  <xacro:property name="rear_axle_z" value="-0.28157"/>
+  <xacro:property name="front_track" value="0.74408"/>
+  <xacro:property name="rear_track" value="0.73553"/>
+  <xacro:property name="wheel_radius" value="0.11557"/>
+  <xacro:property name="wheel_width" value="0.11430"/>
+  <xacro:property name="wheel_mass" value="1.25"/>
+  <xacro:property name="tube_width" value="0.04445"/>
+  <xacro:property name="front_travel" value="0.42"/>
+  <xacro:property name="rear_travel" value="0.30"/>
+</robot>

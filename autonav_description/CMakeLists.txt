@@ -24,9 +24,10 @@ install(TARGETS
 )
 
 install(
-  DIRECTORY launch # add other folders as needed
+  DIRECTORY config launch meshes rviz urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
+install(FILES README.md LICENSE DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

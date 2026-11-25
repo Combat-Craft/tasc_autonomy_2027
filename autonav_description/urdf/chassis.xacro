@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="chassis">
+    <link name="base_link">
+      <xacro:box_inertia mass="${body_mass}" x="${body_length}" y="${body_width}"
+                         z="${body_height}" xyz="0 0 ${body_height/2}"/>
+      <xacro:property name="length" value="${body_length - 0.156}"/>
+      <xacro:property name="center_x" value="-0.078"/>
+      <xacro:property name="front_x" value="${body_length/2 - 0.078}"/>
+      <!-- Closed rectangular enclosure and shallow wedge over the front nose. -->
+      <xacro:box_visual size="${length} ${body_width} ${body_height}" material="panel"
+                        xyz="${center_x} 0 ${body_height/2}"/>
+      <xacro:box_collision size="${length} ${body_width} ${body_height}"
+                           xyz="${center_x} 0 ${body_height/2}"/>
+      <visual>
+        <origin xyz="${front_x} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="$(arg mesh_root)/chassis_nose.stl" scale="1 ${body_width/0.446} ${body_height/0.18}"/>
+        </geometry>
+        <material name="panel"/>
+      </visual>
+      <!-- A conservative box fits within the sloping front panel. -->
+      <xacro:box_collision size="0.156 ${body_width} ${body_height*0.34}"
+                           xyz="${front_x} 0 ${body_height*0.83}"/>
+      <xacro:box_visual size="${length} 0.014 0.018" material="metal"
+                        xyz="${center_x} ${body_width/2} ${body_height-0.01}"/>
+      <xacro:box_visual size="${length} 0.014 0.018" material="metal"
+                        xyz="${center_x} ${-body_width/2} ${body_height-0.01}"/>
+    </link>
+  </xacro:macro>
+</robot>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot name="tasc_rover" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="gazebo" default="false"/>
+  <!-- Standalone URDF uses a package URI. Simulation passes an installed file URI. -->
+  <xacro:arg name="mesh_root" default="package://autonav_description/meshes"/>
+  <xacro:property name="simulate" value="$(arg gazebo)"/>
+
+  <xacro:include filename="dimensions.xacro"/>
+  <xacro:include filename="geometry.xacro"/>
+  <xacro:include filename="chassis.xacro"/>
+  <xacro:include filename="suspension.xacro"/>
+  <xacro:include filename="sensors.xacro"/>
+  <xacro:include filename="sensor_mounts.xacro"/>
+  <xacro:include filename="gazebo.xacro"/>
+
+  <xacro:chassis/>
+  <xacro:front_rocker side="left" sign="1"/>
+  <xacro:front_rocker side="right" sign="-1"/>
+  <xacro:rear_bogie/>
+  <xacro:mount_sensors/>
+  <xacro:if value="${simulate}">
+    <xacro:gazebo_systems/>
+  </xacro:if>
+</robot>
